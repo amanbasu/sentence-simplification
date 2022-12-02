@@ -6,7 +6,7 @@ from utils import encode_batch, get_testloader, sari_score, bleu_score, select_m
 
 os.environ['TOKENIZERS_PARALLELISM'] = 'true'
 
-mod = 'bert'
+mod = 'gpt2_bert'
 encoderTokenizer, decoderTokenizer = None, None
 MAX_LENGTH = 100
 BATCH_SIZE = 20
@@ -45,13 +45,13 @@ def eval(model):
                 outputs = torch.argmax(softmax(logits), dim=-1) 
                 outputs = decoderTokenizer.batch_decode(outputs, skip_special_tokens=True)
 
-                # for idx in range(len(outputs)):
-                #     target_split = target[idx].strip().split('.')
-                #     nsent = len(target_split)
-                #     if target_split[-1] == '':
-                #         nsent -= 1
+                for idx in range(len(outputs)):
+                    target_split = target[idx].strip().split('.')
+                    nsent = len(target_split)
+                    if target_split[-1] == '':
+                        nsent -= 1
 
-                #     outputs[idx] = '.'.join(outputs[idx].split('.')[:nsent]) + '.'
+                    outputs[idx] = '.'.join(outputs[idx].split('.')[:nsent]) + '.'
                 
                 predictions.extend(outputs)
 

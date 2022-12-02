@@ -1,4 +1,6 @@
 gpt2 - loss: 0.0022 - sari: 0.4787 - bleu: 0.9732
 bert - loss: 0.0119 - sari: 0.4212 - bleu: 0.2241
-gpt2 bert - loss: 0.0101 - sari: 0.4208 - bleu: 0.2251
-bert gpt2 - loss: 0.0018 - sari: 0.4787 - bleu: 0.9732
+bert2 - loss: 0.0122 - sari: 0.4652 - bleu: 0.8640
+gpt2_bert - loss: 0.0101 - sari: 0.4208 - bleu: 0.2251
+gpt2_bert2 - loss: 0.0101 - sari: 0.4650 - bleu: 0.8636
+bert_gpt2 - loss: 0.0018 - sari: 0.4787 - bleu: 0.9732

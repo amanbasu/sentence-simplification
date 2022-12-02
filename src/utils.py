@@ -86,14 +86,20 @@ def select_model(mod='gpt2'):
     if mod == 'gpt2':
         tokenizer = GPT2TokenizerFast.from_pretrained('gpt2')
         tokenizer.pad_token = tokenizer.eos_token
+
         encoderTokenizer = decoderTokenizer = tokenizer
+
         encoderConfig = decoderConfig = GPT2Config()
+
     elif mod == 'bert':
         tokenizer = BertTokenizerFast.from_pretrained('bert-base-cased')
         tokenizer.bos_token = tokenizer.cls_token
         tokenizer.eos_token = tokenizer.sep_token
+
         encoderTokenizer = decoderTokenizer = tokenizer
+
         encoderConfig = decoderConfig = BertConfig()
+
     elif mod == 'bert_gpt2':
         encoderTokenizer = BertTokenizerFast.from_pretrained('bert-base-cased')
         encoderTokenizer.bos_token = encoderTokenizer.cls_token
@@ -104,6 +110,7 @@ def select_model(mod='gpt2'):
 
         encoderConfig = BertConfig()
         decoderConfig = GPT2Config()
+        
     elif mod == 'gpt2_bert':
         encoderTokenizer = GPT2TokenizerFast.from_pretrained('gpt2')
         encoderTokenizer.pad_token = encoderTokenizer.eos_token
