@@ -54,30 +54,28 @@ def encode_batch(encoderTokenizer, decoderTokenizer, src, tgt, max_len=100):
     )
 
     labels = tgt_tok.input_ids.clone()
-    labels[tgt_tok.attention_mask == 0] = -100
+    # labels[tgt_tok.attention_mask == 0] = -100
     
     return src_tok.input_ids, src_tok.attention_mask, tgt_tok.input_ids, tgt_tok.attention_mask, labels
 
 def bleu_score(pred, ref):
-    size = len(pred)
     weights = (0.25, 0.25, 0.25, 0.25)
     chencherry = SmoothingFunction().method1
     
-    score = 0
+    scores = []
     for a, b in zip(ref, pred):
         for idx, sent in enumerate(a):
             a[idx] = sent.split(' ')
         b = b.split(' ')
-        score += corpus_bleu([a], [b], weights=weights, smoothing_function=chencherry)
+        scores += [corpus_bleu([a], [b], weights=weights, smoothing_function=chencherry)]
 
-    return score / size
+    return scores
 
 def sari_score(src, pred, ref):
-    size = len(pred)
-    score = 0
+    scores = []
     for a, b, c in zip(src, pred, ref):
-        score += sari.SARIsent(a, b, c)
-    return score / size
+        scores += [sari.SARIsent(a, b, c)]
+    return scores
 
 def select_model(mod='gpt2'):
 

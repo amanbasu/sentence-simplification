@@ -4,3 +4,14 @@ bert2 - loss: 0.0122 - sari: 0.4652 - bleu: 0.8640
 gpt2_bert - loss: 0.0101 - sari: 0.4208 - bleu: 0.2251
 gpt2_bert2 - loss: 0.0101 - sari: 0.4650 - bleu: 0.8636
 bert_gpt2 - loss: 0.0018 - sari: 0.4787 - bleu: 0.9732
+
+gpt2_v2 - sari: 0.4635 - bleu: 0.8106
+
+
+
+
+The ideal evaluation criteria for these tasks would be a human assessor but due to the sheer volume of the test data and the biases introduced by the human assessor , we would be utilizing the popular NLP metric like BLEU or SARI .
+
+The ideal evaluation criteria for these tasks would be a human whatsoeveror but due to the sheer volume of the test data and the alley introduced by the human runneror, we would be using the popular NLP metric like BLEU or Sopal.
+
+The ideal way to evaluate these tasks would be with a human assessor, but due to the large amount of test data and potential bias, the popular NLP metrics BLEU or SARI will be used instead.
