@@ -2,23 +2,17 @@ from tqdm import tqdm
 import torch
 import numpy as np
 import os
-from utils import encode_batch, get_testloader, sari_score, bleu_score, fkgl_score, select_model
+from utils import *
+import argparse
 
 os.environ['TOKENIZERS_PARALLELISM'] = 'true'
 
-mod = 'gpt2'
 encoderTokenizer, decoderTokenizer = None, None
-MAX_LENGTH = 100
-BATCH_SIZE = 20
-LEARNING_RATE = 1e-3
 DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
-SAVE_PATH = f'../checkpoint/model_{mod}_v2.pt'
-PRED_PATH = f'../{mod}_v2_preds_test.txt'
 
-def eval(model):
+def eval(model, args):
 
-    testLoader = get_testloader(BATCH_SIZE)
-
+    testLoader = get_testloader(args.batch_size)
     predictions = []
 
     # get model performace on val set
@@ -29,34 +23,18 @@ def eval(model):
 
                 ref = np.array(ref).T.tolist()                                  # transpose ref, order gets changed in datagen
 
-                src_inp, _, _, _, labels = encode_batch(
+                src_inp, _, _, _, _ = encode_batch(
                     encoderTokenizer, decoderTokenizer, source, target
                 )
 
-                logits = model.generate(input_ids=src_inp.to(DEVICE), max_length=MAX_LENGTH)
+                logits = model.generate(
+                    input_ids=src_inp.to(DEVICE), 
+                    max_length=args.max_length
+                )
                 outputs = decoderTokenizer.batch_decode(
                     logits, skip_special_tokens=True
                 )
 
-                # loss, logits = model(
-                #     input_ids = src_inp.to(DEVICE), 
-                #     decoder_input_ids = tgt_inp.to(DEVICE),
-                #     attention_mask = src_att.to(DEVICE),
-                #     decoder_attention_mask = tgt_att.to(DEVICE),
-                #     labels = labels.to(DEVICE)
-                # )[:2]
-
-                # outputs = torch.argmax(softmax(logits), dim=-1) 
-                # outputs = decoderTokenizer.batch_decode(outputs, skip_special_tokens=True)
-
-                # for idx in range(len(outputs)):
-                #     target_split = target[idx].strip().split('.')
-                #     nsent = len(target_split)
-                #     if target_split[-1] == '':
-                #         nsent -= 1
-
-                #     outputs[idx] = '.'.join(outputs[idx].split('.')[:nsent]) + '.'
-                
                 predictions.extend(outputs)
 
                 sari = sari_score(source, outputs, ref)         
@@ -71,49 +49,54 @@ def eval(model):
             pass
 
     print(f'sari: {np.mean(saris, axis=0)} - bleu: {np.mean(bleus):.4f} - fkgl: {np.mean(fkgls):.4f}')
-    # print(f"{idx//BATCH_SIZE+1}/{SIZE//BATCH_SIZE} [{'=' * progress}>{'-' * (nlines - progress)}] loss: {np.mean(losses):.3f}", end='\r')
 
-    return predictions, saris   
-
-def custom(model):
-
-    source = ['The ideal evaluation criteria for these tasks would be a human assessor but due to the sheer volume of the test data and the biases introduced by the human assessor , we would be utilizing the popular NLP metric like BLEU or SARI .']
-
-    with torch.no_grad():
-        src_inp, _, _, _, _ = encode_batch(
-            encoderTokenizer, decoderTokenizer, source, source
-        )
-
-        logits = model.generate(input_ids=src_inp.to(DEVICE), max_length=MAX_LENGTH)
-        outputs = decoderTokenizer.batch_decode(
-            logits, skip_special_tokens=True
-        )
-
-        for outp in outputs:
-            print(outp)
+    return predictions   
 
 if __name__ == '__main__':
 
+    parser = argparse.ArgumentParser(description='Arguments for training.')
+    parser.add_argument(
+        '--model', default='gpt2', type=str, 
+        choices=['gpt2', 'bert', 'bert_gpt2', 'gpt2_bert'],
+        help='model type'
+    )
+    parser.add_argument(
+        '--max_length', default=80, type=int,
+        help='maximum length for encoder'
+    )
+    parser.add_argument(
+        '--batch_size', default=20, type=int,
+        help='batch size for training'
+    )
+    parser.add_argument(
+        '--model_path', default='../checkpoint/model.pt', type=str,
+        help='model save path'
+    )
+    parser.add_argument(
+        '--save_predictions', default=False, type=bool,
+        help='saves predictions in a txt file'
+    )
+    parser.add_argument(
+        '--pred_path', default='predictions.txt', type=str,
+        help='path to save the predictions'
+    )
+    args = parser.parse_args()
+
     print('using device:', DEVICE)
-    print('loading from:', SAVE_PATH)
+    print('loading from:', args.model_path)
 
-    encoderTokenizer, decoderTokenizer, model = select_model(mod=mod)
+    encoderTokenizer, decoderTokenizer, model = select_model(mod=args.model)
 
-    model.config.max_length = MAX_LENGTH
+    model.config.max_length = args.max_length
     model.config.no_repeat_ngram_size = 3
     model = model.to(DEVICE)
 
-    checkpoint = torch.load(SAVE_PATH)
+    checkpoint = torch.load(args.model_path)
     model.load_state_dict(checkpoint['model_state_dict'])
             
-    # custom(model)
+    predictions = eval(model)
 
-    predictions, saris = eval(model)
-
-    # with open(PRED_PATH, 'w') as f:
-    #     for pred in predictions:
-    #         f.write(pred + '\n')
-
-    # with open(PRED_PATH.replace('preds', 'saris'), 'w') as f:
-    #     for sari in saris:
-    #         f.write(str(sari) + '\n')
+    if args.save_predictions:
+        with open(args.pred_path, 'w') as f:
+            for pred in predictions:
+                f.write(pred + '\n')
