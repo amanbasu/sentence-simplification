@@ -2,6 +2,8 @@
 Source:
 https://huggingface.co/blog/how-to-train
 https://colab.research.google.com/github/huggingface/blog/blob/main/notebooks/01_how_to_train.ipynb#scrollTo=VNZZs-r6iKAV
+
+The file trains a RoBERTa model from scratch on oscar.en data from HuggingFace.
 '''
 
 import datasets
@@ -33,31 +35,31 @@ oscar = datasets.load_dataset(
     streaming=True
 )
 
-# print('[INFO] reading oscar_en corpus')
-# if not os.path.exists(oscar_path) or os.path.getsize(oscar_path) < 1_000_000:
-#     with open(oscar_path, 'w') as f:
-#         for num, batch in enumerate(oscar):
-#             f.write(batch['text'] + '\n')
-#             if num > 1_000_000:
-#                 break
-#     print('[INFO] saved corpora, file size', os.path.getsize(oscar_path))
+print('[INFO] reading oscar_en corpus')
+if not os.path.exists(oscar_path) or os.path.getsize(oscar_path) < 1_000_000:
+    with open(oscar_path, 'w') as f:
+        for num, batch in enumerate(oscar):
+            f.write(batch['text'] + '\n')
+            if num > 1_000_000:
+                break
+    print('[INFO] saved corpora, file size', os.path.getsize(oscar_path))
 
-# print('[INFO] training tokenizer')
-# tokenizer = ByteLevelBPETokenizer()
-# tokenizer.train(
-#     files=[oscar_path], 
-#     vocab_size=VOCAB_SIZE, 
-#     min_frequency=2, 
-#     special_tokens=[
-#         "<s>",
-#         "<pad>",
-#         "</s>",
-#         "<unk>",
-#         "<mask>",
-#     ]
-# )
-# tokenizer.save_model(tokenizer_path)
-# print('[INFO] saved tokenizer')
+print('[INFO] training tokenizer')
+tokenizer = ByteLevelBPETokenizer()
+tokenizer.train(
+    files=[oscar_path], 
+    vocab_size=VOCAB_SIZE, 
+    min_frequency=2, 
+    special_tokens=[
+        "<s>",
+        "<pad>",
+        "</s>",
+        "<unk>",
+        "<mask>",
+    ]
+)
+tokenizer.save_model(tokenizer_path)
+print('[INFO] saved tokenizer')
 
 tokenizer = ByteLevelBPETokenizer(
     f'{tokenizer_path}/vocab.json', f'{tokenizer_path}/merges.txt'
@@ -119,7 +121,7 @@ fill_mask = pipeline(
 )
 
 print('[INFO] sanity check')
-print(fill_mask('Let children have <mask>.'))
+print(fill_mask('Let children play <mask>.'))
 print(fill_mask('Sun rises in the <east>.'))
 print(fill_mask('David went to a <mask> store to buy the toilet paper.'))
 print('done')

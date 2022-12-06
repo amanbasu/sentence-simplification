@@ -75,6 +75,7 @@ def sari_score(src, pred, ref):
     scores = []
     for a, b, c in zip(src, pred, ref):
         scores += [sari.SARIsent(a, b, c)]
+        # for EASSE metrics
         # c = [[k] for k in c]
         # scores += [corpus_sari([a], [b], c)]
     return scores
