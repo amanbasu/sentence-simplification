@@ -2,7 +2,7 @@ from tqdm import tqdm
 import torch
 import numpy as np
 import os
-from utils import encode_batch, get_testloader, sari_score, bleu_score, select_model
+from utils import encode_batch, get_testloader, sari_score, bleu_score, fkgl_score, select_model
 
 os.environ['TOKENIZERS_PARALLELISM'] = 'true'
 
@@ -14,7 +14,6 @@ LEARNING_RATE = 1e-3
 DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
 SAVE_PATH = f'../checkpoint/model_{mod}_v2.pt'
 PRED_PATH = f'../{mod}_v2_preds_test.txt'
-softmax = torch.nn.LogSoftmax(dim=-1)
 
 def eval(model):
 
@@ -24,7 +23,7 @@ def eval(model):
 
     # get model performace on val set
     with torch.no_grad():
-        bleus, saris = [], []
+        bleus, saris, fkgls = [], [], []
         try:
             for source, target, ref in tqdm(testLoader):
 
@@ -62,14 +61,16 @@ def eval(model):
 
                 sari = sari_score(source, outputs, ref)         
                 bleu = bleu_score(outputs, ref)
+                fkgl = fkgl_score(outputs)
 
                 saris += sari
                 bleus += bleu
+                fkgls += fkgl
 
         except StopIteration:
             pass
 
-    print(f'sari: {np.mean(saris):.4f} - bleu: {np.mean(bleus):.4f}')
+    print(f'sari: {np.mean(saris, axis=0)} - bleu: {np.mean(bleus):.4f} - fkgl: {np.mean(fkgls):.4f}')
     # print(f"{idx//BATCH_SIZE+1}/{SIZE//BATCH_SIZE} [{'=' * progress}>{'-' * (nlines - progress)}] loss: {np.mean(losses):.3f}", end='\r')
 
     return predictions, saris   
@@ -113,6 +114,6 @@ if __name__ == '__main__':
     #     for pred in predictions:
     #         f.write(pred + '\n')
 
-    with open(PRED_PATH.replace('preds', 'saris'), 'w') as f:
-        for sari in saris:
-            f.write(str(sari) + '\n')
+    # with open(PRED_PATH.replace('preds', 'saris'), 'w') as f:
+    #     for sari in saris:
+    #         f.write(str(sari) + '\n')

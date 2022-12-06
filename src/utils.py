@@ -1,5 +1,7 @@
 import sari
 from nltk.translate.bleu_score import corpus_bleu, SmoothingFunction
+from easse.fkgl import corpus_fkgl
+from easse.sari import corpus_sari
 from torch.utils.data import DataLoader
 from datagen import DataGenerator
 from transformers import GPT2TokenizerFast, GPT2Config, EncoderDecoderConfig
@@ -31,8 +33,7 @@ def get_testloader(batch_size):
         testDataset, 
         batch_size=batch_size, 
         shuffle=False, 
-        pin_memory=True, 
-        num_workers=4
+        pin_memory=True
     )
     return iter(testLoader)
 
@@ -74,9 +75,17 @@ def bleu_score(pred, ref):
 def sari_score(src, pred, ref):
     scores = []
     for a, b, c in zip(src, pred, ref):
-        scores += [sari.SARIsent(a, b, c)]
+        # scores += [sari.SARIsent(a, b, c)]
+        c = [[k] for k in c]
+        scores += [corpus_sari([a], [b], c)]
     return scores
 
+def fkgl_score(pred):
+    scores = []
+    for a in pred:
+        scores += [corpus_fkgl([a])]
+    return scores
+    
 def select_model(mod='gpt2'):
 
     encoderConfig = decoderConfig = None

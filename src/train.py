@@ -18,6 +18,9 @@ DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
 SAVE_PATH = f'../checkpoint/model_{mod}.pt'
 softmax = torch.nn.LogSoftmax(dim=-1)
 
+# generate sum of two numbers
+
+
 def train(model, optimizer):
 
     for epoch in range(EPOCHS):
