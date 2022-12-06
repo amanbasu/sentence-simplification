@@ -11,16 +11,16 @@ encoderTokenizer, decoderTokenizer = None, None
 DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 def eval(model, args):
+    global encoderTokenizer, decoderTokenizer, DEVICE
 
     testLoader = get_testloader(args.batch_size)
     predictions = []
+    metric = {'sari': [], 'bleu': [], 'fkgl': []}
 
     # get model performace on val set
     with torch.no_grad():
-        bleus, saris, fkgls = [], [], []
         try:
             for source, target, ref in tqdm(testLoader):
-
                 ref = np.array(ref).T.tolist()                                  # transpose ref, order gets changed in datagen
 
                 src_inp, _, _, _, _ = encode_batch(
@@ -41,19 +41,42 @@ def eval(model, args):
                 bleu = bleu_score(outputs, ref)
                 fkgl = fkgl_score(outputs)
 
-                saris += sari
-                bleus += bleu
-                fkgls += fkgl
-
+                metric['sari'] += sari
+                metric['bleu'] += bleu
+                metric['fkgl'] += fkgl
         except StopIteration:
             pass
 
-    print(f'sari: {np.mean(saris, axis=0)} - bleu: {np.mean(bleus):.4f} - fkgl: {np.mean(fkgls):.4f}')
+    log = []
+    for key in metric.keys():
+        log.append(f'{key}: {np.mean(metric[key]):.4f}')
+    print(' - '.join(log))
 
     return predictions   
 
-if __name__ == '__main__':
+def main(args):
+    global encoderTokenizer, decoderTokenizer, DEVICE
 
+    print('using device:', DEVICE)
+    print('loading from:', args.model_path)
+
+    encoderTokenizer, decoderTokenizer, model = select_model(mod=args.model)
+
+    model.config.max_length = args.max_length
+    model.config.no_repeat_ngram_size = 3
+    model = model.to(DEVICE)
+
+    checkpoint = torch.load(args.model_path)
+    model.load_state_dict(checkpoint['model_state_dict'])
+            
+    predictions = eval(model, args)
+
+    if args.save_predictions:
+        with open(args.pred_path, 'w') as f:
+            for pred in predictions:
+                f.write(pred + '\n')
+
+if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Arguments for training.')
     parser.add_argument(
         '--model', default='gpt2', type=str, 
@@ -81,22 +104,4 @@ if __name__ == '__main__':
         help='path to save the predictions'
     )
     args = parser.parse_args()
-
-    print('using device:', DEVICE)
-    print('loading from:', args.model_path)
-
-    encoderTokenizer, decoderTokenizer, model = select_model(mod=args.model)
-
-    model.config.max_length = args.max_length
-    model.config.no_repeat_ngram_size = 3
-    model = model.to(DEVICE)
-
-    checkpoint = torch.load(args.model_path)
-    model.load_state_dict(checkpoint['model_state_dict'])
-            
-    predictions = eval(model)
-
-    if args.save_predictions:
-        with open(args.pred_path, 'w') as f:
-            for pred in predictions:
-                f.write(pred + '\n')
+    main(args)

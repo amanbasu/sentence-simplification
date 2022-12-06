@@ -7,18 +7,18 @@ import argparse
 
 os.environ['TOKENIZERS_PARALLELISM'] = 'true'
 
-STEPS = 2769
 DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
 encoderTokenizer, decoderTokenizer = None, None
 
 def train(model, optimizer, scheduler, args):
+    global encoderTokenizer, decoderTokenizer, DEVICE
 
     scores = []
     for epoch in range(args.epochs):
         print(f"Epoch {epoch+1}/{args.epochs}")
 
         trainLoader, valLoader = get_dataloader(args.batch_size)
-        losses = []
+        metric = {'loss': [], 'sari': [], 'bleu': [], 'fkgl': []}
         
         # when dataloader runs out of batches, it throws an exception
         try:
@@ -34,7 +34,7 @@ def train(model, optimizer, scheduler, args):
                     labels = labels.to(DEVICE)
                 )[0]
 
-                losses += [loss.item()]
+                metric['loss'] += [loss.item()]
                 loss.backward()
                 optimizer.step()
                 scheduler.step()   
@@ -43,10 +43,8 @@ def train(model, optimizer, scheduler, args):
 
         # get model performace on val set
         with torch.no_grad():
-            bleus, saris, fkgls = [], [], []
             try:
                 for source, target, ref in tqdm(valLoader):
-
                     ref = np.array(ref).T.tolist()                              # transpose ref, order gets changed in datagen
 
                     src_inp, _, _, _, labels = encode_batch(
@@ -65,20 +63,18 @@ def train(model, optimizer, scheduler, args):
                     bleu = bleu_score(outputs, ref)
                     fkgl = fkgl_score(outputs)
 
-                    saris += sari
-                    bleus += bleu
-                    fkgls += fkgl
-
+                    metric['sari'] += sari
+                    metric['bleu'] += bleu
+                    metric['fkgl'] += fkgl
             except StopIteration:
                 pass
 
-        losses = np.mean(losses)
-        saris = np.mean(saris)
-        bleus = np.mean(bleus)
-        fkgls = np.mean(fkgls)
-        print(f'loss: {losses:.4f} - sari: {saris:.4f} - bleu: {bleus:.4f} - fkgl: {fkgls:.4f}')
+        log = []
+        for key in metric.keys():
+            log.append(f'{key}: {np.mean(metric[key]):.4f}')
+        print(' - '.join(log))
 
-        scores.append(saris)
+        scores.append(np.mean(metric['sari']))
         # save checkpoint for only the best model 
         if epoch > 3 and scores[-1] == np.max(scores):
             torch.save({'epoch': epoch+1,
@@ -91,47 +87,16 @@ def train(model, optimizer, scheduler, args):
         elif len(scores) - np.argmax(scores) > 4:
             print('stopping training.')
             break
-
     return model        
 
-if __name__ == '__main__':
-
-    parser = argparse.ArgumentParser(description='Arguments for training.')
-    parser.add_argument(
-        '--model', default='gpt2', type=str, 
-        choices=['gpt2', 'bert', 'bert_gpt2', 'gpt2_bert'],
-        help='model type'
-    )
-    parser.add_argument(
-        '--max_length', default=80, type=int,
-        help='maximum length for encoder'
-    )
-    parser.add_argument(
-        '--epochs', default=40, type=int,
-        help='number of training epochs'
-    )
-    parser.add_argument(
-        '--init_epoch', default=0, type=int,
-        help='epoch to resume the training from'
-    )
-    parser.add_argument(
-        '--batch_size', default=50, type=int,
-        help='batch size for training'
-    )
-    parser.add_argument(
-        '--lr', default=1e-5, type=float,
-        help='learning rate for training'
-    )
-    parser.add_argument(
-        '--save_path', default='../checkpoint/model.pt', type=str,
-        help='model save path'
-    )
-    args = parser.parse_args()
+def main(args):
+    global encoderTokenizer, decoderTokenizer, DEVICE
 
     print('using device:', DEVICE)
     print('save path:', args.save_path)
     print('model:', args.model)
 
+    STEPS = 138500 // args.batch_size                                           # total training samples / batch size
     encoderTokenizer, decoderTokenizer, model = select_model(mod=args.model)
 
     model.config.max_length = args.max_length
@@ -164,3 +129,37 @@ if __name__ == '__main__':
             'optimizer_state_dict': optimizer.state_dict(),
         }, args.save_path)
     print('model saved.')
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='Arguments for training.')
+    parser.add_argument(
+        '--model', default='gpt2', type=str, 
+        choices=['gpt2', 'bert', 'bert_gpt2', 'gpt2_bert'],
+        help='model type'
+    )
+    parser.add_argument(
+        '--max_length', default=80, type=int,
+        help='maximum length for encoder'
+    )
+    parser.add_argument(
+        '--epochs', default=40, type=int,
+        help='number of training epochs'
+    )
+    parser.add_argument(
+        '--init_epoch', default=0, type=int,
+        help='epoch to resume the training from'
+    )
+    parser.add_argument(
+        '--batch_size', default=50, type=int,
+        help='batch size for training'
+    )
+    parser.add_argument(
+        '--lr', default=1e-5, type=float,
+        help='learning rate for training'
+    )
+    parser.add_argument(
+        '--save_path', default='../checkpoint/model.pt', type=str,
+        help='model save path'
+    )
+    args = parser.parse_args()
+    main(args)
