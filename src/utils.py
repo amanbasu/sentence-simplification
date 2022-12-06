@@ -55,7 +55,6 @@ def encode_batch(encoderTokenizer, decoderTokenizer, src, tgt, max_len=100):
     )
 
     labels = tgt_tok.input_ids.clone()
-    # labels[tgt_tok.attention_mask == 0] = -100
     
     return src_tok.input_ids, src_tok.attention_mask, tgt_tok.input_ids, tgt_tok.attention_mask, labels
 
@@ -75,9 +74,9 @@ def bleu_score(pred, ref):
 def sari_score(src, pred, ref):
     scores = []
     for a, b, c in zip(src, pred, ref):
-        # scores += [sari.SARIsent(a, b, c)]
-        c = [[k] for k in c]
-        scores += [corpus_sari([a], [b], c)]
+        scores += [sari.SARIsent(a, b, c)]
+        # c = [[k] for k in c]
+        # scores += [corpus_sari([a], [b], c)]
     return scores
 
 def fkgl_score(pred):
