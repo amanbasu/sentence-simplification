@@ -1,0 +1,6 @@
+nltk==3.6.7
+numpy==1.22.2
+tokenizers==0.13.2
+torch==1.10.2
+tqdm==4.62.3
+transformers==4.24.0
