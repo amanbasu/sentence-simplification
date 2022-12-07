@@ -77,7 +77,7 @@ def main(args):
                 f.write(pred + '\n')
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Arguments for training.')
+    parser = argparse.ArgumentParser(description='Arguments for evaluation.')
     parser.add_argument(
         '--model', default='gpt2', type=str, 
         choices=['gpt2', 'bert', 'bert_gpt2', 'gpt2_bert'],
@@ -89,7 +89,7 @@ if __name__ == '__main__':
     )
     parser.add_argument(
         '--batch_size', default=20, type=int,
-        help='batch size for training'
+        help='batch size for evaluation'
     )
     parser.add_argument(
         '--model_path', default='../checkpoint/model.pt', type=str,
@@ -97,6 +97,7 @@ if __name__ == '__main__':
     )
     parser.add_argument(
         '--save_predictions', default=False, type=bool,
+        choices=[True, False],
         help='saves predictions in a txt file'
     )
     parser.add_argument(

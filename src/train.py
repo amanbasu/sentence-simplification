@@ -10,7 +10,7 @@ os.environ['TOKENIZERS_PARALLELISM'] = 'true'
 DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
 encoderTokenizer, decoderTokenizer = None, None
 
-def train(model, optimizer, scheduler, args):
+def train(model, optimizer, args):
     global encoderTokenizer, decoderTokenizer, DEVICE
 
     scores = []
@@ -37,7 +37,7 @@ def train(model, optimizer, scheduler, args):
                 metric['loss'] += [loss.item()]
                 loss.backward()
                 optimizer.step()
-                scheduler.step()   
+                # scheduler.step()   
         except StopIteration:
             pass
 
@@ -76,7 +76,7 @@ def train(model, optimizer, scheduler, args):
 
         scores.append(np.mean(metric['sari']))
         # save checkpoint for only the best model 
-        if epoch > 3 and scores[-1] == np.max(scores):
+        if epoch > 1 and scores[-1] == np.max(scores):
             torch.save({'epoch': epoch+1,
                         'model_state_dict': model.state_dict(),
                         'optimizer_state_dict': optimizer.state_dict(),
@@ -104,13 +104,13 @@ def main(args):
     model = model.to(DEVICE)
 
     optimizer = torch.optim.AdamW(model.parameters(), lr=args.lr)
-    scheduler = torch.optim.lr_scheduler.OneCycleLR(
-        optimizer,
-        max_lr=args.lr*10,
-        steps_per_epoch=STEPS,
-        pct_start=0.15,
-        epochs=args.epochs
-    )
+    # scheduler = torch.optim.lr_scheduler.OneCycleLR(
+    #     optimizer,
+    #     max_lr=args.lr*10,
+    #     steps_per_epoch=STEPS,
+    #     pct_start=0.15,
+    #     epochs=args.epochs
+    # )
 
     # start from last checkpoint
     if args.init_epoch > 0:
@@ -120,7 +120,7 @@ def main(args):
         optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
         INIT_EPOCH = checkpoint['epoch']
         
-    model = train(model, optimizer, scheduler, args)
+    model = train(model, optimizer, args)
 
     torch.save(
         {
