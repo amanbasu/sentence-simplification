@@ -122,13 +122,13 @@ def main(args):
         
     model = train(model, optimizer, args)
 
-    torch.save(
-        {
-            'epoch': args.epochs,
-            'model_state_dict': model.state_dict(),
-            'optimizer_state_dict': optimizer.state_dict(),
-        }, args.save_path)
-    print('model saved.')
+    # torch.save(
+    #     {
+    #         'epoch': args.epochs,
+    #         'model_state_dict': model.state_dict(),
+    #         'optimizer_state_dict': optimizer.state_dict(),
+    #     }, args.save_path)
+    # print('model saved.')
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Arguments for training.')
