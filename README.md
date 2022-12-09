@@ -24,14 +24,14 @@ The models were trained on *WikiLarge* dataset which you can download from [here
 .
 │
 ├── dataset
-│   ├── src_train
-│   ├── src_valid
-│   ├── src_test
-│   ├── tgt_train
-│   ├── tgt_valid
-│   ├── tgt_test
-│   ├── ref_test
-│   ├── ref_valid
+│   ├── src_train.txt
+│   ├── src_valid.txt
+│   ├── src_test.txt
+│   ├── tgt_train.txt
+│   ├── tgt_valid.txt
+│   ├── tgt_test.txt
+│   ├── ref_test.pkl
+│   ├── ref_valid.pkl
 │
 ├── src
 │   ├── datagen.py
@@ -41,7 +41,8 @@ The models were trained on *WikiLarge* dataset which you can download from [here
 │   ├── train_from_scratch.py
 │   ├── utils.py
 |
-├── GPT2_preds.txt
+├── requirements.txt
+├── README.md
 |
 ```
 
@@ -122,16 +123,16 @@ optional arguments:
 
 ## Examples
 
-To train a model - 
+To train a model
 
 ```bash
-python train.py --model gpt2 --epochs 5 --batch_size 20 --save_path '../checkpoint/model_gpt2.pt'
+python train.py --model bert --epochs 5 --batch_size 20 --save_path '../checkpoint/model_bert.pt'
 ```
 
-To evaluate a model -
+To evaluate a model
 
 ```bash
-python evaluate.py --model gpt2 --model_path '../checkpoint/model_gpt2.pt' --save_predictions True --pred_path '../predictions.txt'
+python evaluate.py --model bert --model_path '../checkpoint/model_bert.pt' --save_predictions True --pred_path '../bert_predictions.txt'
 ```
 
 ## Citation
@@ -141,8 +142,8 @@ python evaluate.py --model gpt2 --model_path '../checkpoint/model_gpt2.pt' --sav
 
 ## References
 
-1. Dataset: https://github.com/Aakash12980/Sentence-Simplification-using-BERT-GPT2
+1. Sample data: https://github.com/Aakash12980/Sentence-Simplification-using-BERT-GPT2
 2. WikiLarge: https://cs.pomona.edu/~dkauchak/simplification/
 3. Train models from scratch: https://huggingface.co/blog/how-to-train
 4. SARI implementation: https://github.com/cocoxu/simplification
-5. Other metrics: https://github.com/feralvam/easse
+5. Other metrics (EASSE): https://github.com/feralvam/easse
