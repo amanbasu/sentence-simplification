@@ -101,7 +101,7 @@ if __name__ == '__main__':
         help='saves predictions in a txt file'
     )
     parser.add_argument(
-        '--pred_path', default='../results/predictions.txt', type=str,
+        '--pred_path', default='predictions.txt', type=str,
         help='path to save the predictions'
     )
     args = parser.parse_args()
