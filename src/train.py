@@ -9,6 +9,8 @@ os.environ['TOKENIZERS_PARALLELISM'] = 'true'
 
 DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
 encoderTokenizer, decoderTokenizer = None, None
+WARMUP_EPOCHS = 2                                                               # start saving model after #WARMUP_EPOCHS
+PATIENCE = 4                                                                    # #epochs to wait before early stopping
 
 def train(model, optimizer, args):
     global encoderTokenizer, decoderTokenizer, DEVICE
@@ -76,18 +78,17 @@ def train(model, optimizer, args):
 
         scores.append(np.mean(metric['sari']))
         # save checkpoint for only the best model 
-        if epoch > 1 and scores[-1] == np.max(scores):
+        if epoch >= WARMUP_EPOCHS and scores[-1] == np.max(scores):
             torch.save({'epoch': epoch+1,
                         'model_state_dict': model.state_dict(),
                         'optimizer_state_dict': optimizer.state_dict(),
                         'loss': loss,
-                        }, f'../checkpoint/model_{args.model}_best.pt')
+                        }, args.save_path)
             print('checkpoint saved.')
         # early stopping
-        elif len(scores) - np.argmax(scores) > 4:
+        elif len(scores) - np.argmax(scores) > PATIENCE:
             print('stopping training.')
             break
-    return model        
 
 def main(args):
     global encoderTokenizer, decoderTokenizer, DEVICE
@@ -120,15 +121,7 @@ def main(args):
         optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
         INIT_EPOCH = checkpoint['epoch']
         
-    model = train(model, optimizer, args)
-
-    # torch.save(
-    #     {
-    #         'epoch': args.epochs,
-    #         'model_state_dict': model.state_dict(),
-    #         'optimizer_state_dict': optimizer.state_dict(),
-    #     }, args.save_path)
-    # print('model saved.')
+    train(model, optimizer, args)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Arguments for training.')
@@ -154,7 +147,7 @@ if __name__ == '__main__':
         help='batch size for training'
     )
     parser.add_argument(
-        '--lr', default=1e-5, type=float,
+        '--lr', default=1e-4, type=float,
         help='learning rate for training'
     )
     parser.add_argument(

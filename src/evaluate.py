@@ -52,7 +52,7 @@ def eval(model, args):
         log.append(f'{key}: {np.mean(metric[key]):.4f}')
     print(' - '.join(log))
 
-    return predictions, metric
+    return predictions
 
 def main(args):
     global encoderTokenizer, decoderTokenizer, DEVICE
@@ -69,16 +69,12 @@ def main(args):
     checkpoint = torch.load(args.model_path)
     model.load_state_dict(checkpoint['model_state_dict'])
             
-    predictions, metric = eval(model, args)
+    predictions = eval(model, args)
 
     if args.save_predictions:
         with open(args.pred_path, 'w') as f:
             for pred in predictions:
                 f.write(pred + '\n')
-
-        with open(f'../results/{args.model}_sari.txt', 'w') as f:
-            for sar in metric['sari']:
-                f.write(str(sar) + '\n')
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Arguments for evaluation.')
