@@ -16,7 +16,7 @@ Sentence simplification aims at making the structure of text easier to read and 
 
 ## Dataset
 
-The models were trained on *WikiLarge* dataset which you can download from [here](https://cs.pomona.edu/~dkauchak/simplification/) or [XingxingZhang/dress](https://github.com/XingxingZhang/dress).
+The models were trained on *WikiLarge* dataset which you can download from David Kauchak's [webpage](https://cs.pomona.edu/~dkauchak/simplification/) or [XingxingZhang/dress](https://github.com/XingxingZhang/dress).
 
 > For ease of access, a small, cleaned dataset from [Aakash12980/Sentence-Simplification-using-BERT-GPT2](https://github.com/Aakash12980/Sentence-Simplification-using-BERT-GPT2) is provided. This dataset can also be used for training and evaluation purpose.
 
@@ -136,6 +136,11 @@ To evaluate a model
 ```bash
 python evaluate.py --model bert --model_path '../checkpoint/model_bert.pt' --save_predictions True --pred_path '../bert_predictions.txt'
 ```
+
+## Results
+
+<p align='center'><img src="results.png" width="50%"></p>
+<p align='center'>Figure 1. A comparison of our model's performance against previous studies.</p>
 
 ## Citation
 
