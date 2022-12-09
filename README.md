@@ -2,6 +2,8 @@
 
 <img src="https://img.shields.io/badge/torch-1.10.2+cu102-green?logo=pytorch"/> <img src="https://img.shields.io/badge/python-3.9.8-blue?logo=python"/>
 
+> This work is part of the course L-645 (CSCI B-659) Advanced Natural Language Processing at Indiana University, Bloomington.
+
 ## Overview
 
 Sentence simplification aims at making the structure of text easier to read and understand while maintaining its original meaning. This can be helpful for people with disabilities, new language learners, or those with low literacy. Simplification often involves removing difficult words and rephrasing the sentence. This repo contains the code for fine-tuning transformer models for the task of sentence simplification.
