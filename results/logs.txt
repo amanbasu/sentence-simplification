@@ -1,4 +1,0 @@
-bert        sari: 0.4680 - bleu: 0.7893 - fkgl: 10.5029
-gpt2        sari: 0.4635 - bleu: 0.8106 - fkgl: 10.1232
-gpt2_bert   sari: 0.4235 - bleu: 0.6743 - fkgl: 9.6302
-bert_gpt2   sari: 0.4231 - bleu: 0.6975 - fkgl: 9.5400
