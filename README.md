@@ -6,23 +6,23 @@
 
 Paper link: https://arxiv.org/abs/2212.04595
 
-## Overview
+## ℹ️ Overview
 
 Sentence simplification aims at making the structure of text easier to read and understand while maintaining its original meaning. This can be helpful for people with disabilities, new language learners, or those with low literacy. Simplification often involves removing difficult words and rephrasing the sentence. This repo contains the code for fine-tuning transformer models for the task of sentence simplification.
 
-## Highlights
+## 🌟 Highlights
 
 - Train models for sentence simplification in PyTorch.
 - Models include GPT-2, BERT, GPT-2 encoder and BERT decoder, BERT encoder and GPT-2 decoder.
 - Evaluate results on metrics like SARI, FKGL, and BLEU.
 
-## Dataset
+## 📝 Dataset
 
 The models were trained on *WikiLarge* dataset which you can download from David Kauchak's [webpage](https://cs.pomona.edu/~dkauchak/simplification/) or [XingxingZhang/dress](https://github.com/XingxingZhang/dress).
 
 > For ease of access, a small, cleaned dataset from [Aakash12980/Sentence-Simplification-using-BERT-GPT2](https://github.com/Aakash12980/Sentence-Simplification-using-BERT-GPT2) is provided. This dataset can also be used for training and evaluation purpose.
 
-## Folder structure
+## 🗂️ Folder structure
 
 ```
 .
@@ -50,7 +50,7 @@ The models were trained on *WikiLarge* dataset which you can download from David
 |
 ```
 
-## Requirements
+## ✅ Requirements
 
 The code uses python `3.9.8` and torch `1.10.2`. The other requirements are:
 
@@ -63,7 +63,7 @@ tqdm==4.62.3
 transformers==4.24.0
 ```
 
-## Usage
+## 👨‍💻 Usage
 
 Download the code
 
@@ -125,7 +125,7 @@ optional arguments:
                         path to save the predictions
 ```
 
-## Examples
+## 💬 Examples
 
 To train a model
 
@@ -139,12 +139,12 @@ To evaluate a model
 python evaluate.py --model bert --model_path '../checkpoint/model_bert.pt' --save_predictions True --pred_path '../bert_predictions.txt'
 ```
 
-## Results
+## 🏆 Results
 
 <p align='center'><img src="results.png" width="50%"></p>
 <p align='center'>Figure 1. A comparison of our model's performance against previous studies.</p>
 
-## Citation
+## ✍️ Citation
 
 ```
 @inproceedings{Agarwal2022ExplainTM,
@@ -155,7 +155,7 @@ python evaluate.py --model bert --model_path '../checkpoint/model_bert.pt' --sav
 }
 ```
 
-## References
+## 📚 References
 
 1. Sample data: https://github.com/Aakash12980/Sentence-Simplification-using-BERT-GPT2
 2. WikiLarge: https://cs.pomona.edu/~dkauchak/simplification/
