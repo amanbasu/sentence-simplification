@@ -4,6 +4,8 @@
 
 > This work is part of the course L-645 (CSCI B-659) Advanced Natural Language Processing at Indiana University, Bloomington.
 
+Paper link: https://arxiv.org/abs/2212.04595
+
 ## Overview
 
 Sentence simplification aims at making the structure of text easier to read and understand while maintaining its original meaning. This can be helpful for people with disabilities, new language learners, or those with low literacy. Simplification often involves removing difficult words and rephrasing the sentence. This repo contains the code for fine-tuning transformer models for the task of sentence simplification.
@@ -145,6 +147,12 @@ python evaluate.py --model bert --model_path '../checkpoint/model_bert.pt' --sav
 ## Citation
 
 ```
+@inproceedings{Agarwal2022ExplainTM,
+  title={Explain to me like I am five -- Sentence Simplification Using Transformers},
+  author={Aman Agarwal},
+  year={2022},
+  doi = {10.48550/ARXIV.2212.04595},
+}
 ```
 
 ## References
